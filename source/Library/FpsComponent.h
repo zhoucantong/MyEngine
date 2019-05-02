@@ -1,0 +1,36 @@
+#pragma once
+#include "DrawableGameComponent.h"
+namespace DirectX
+{
+	class SpriteBatch;
+	class SpriteFont;
+}
+namespace Library
+{
+	class FpsComponent :public DrawableGameComponent
+	{
+		RTTI_DECLARATIONS(FpsComponent, DrawableGameComponent)
+	public:
+		FpsComponent(Game& game);
+		virtual ~FpsComponent();
+		XMFLOAT2& TextPosition();
+		int FrameRate() const;
+		virtual void Initialize() override;
+		virtual void Update(const GameTime& gameTime) override;
+		virtual void Draw(const GameTime& gameTime) override;
+
+		void SetPrintText(const std::string& strContent);
+	private:
+		FpsComponent();
+		FpsComponent(const FpsComponent& rhs);
+		FpsComponent& operator=(const FpsComponent& rhs);
+		SpriteBatch* mSpriteBatch;
+		SpriteFont* mSpriteFont;
+		XMFLOAT2 mTextPosition;
+		int mFrameCount;
+		int mFrameRate;
+		double mLastTotalElapsedTime;
+
+		std::string mstrPrintText;
+	};
+}
