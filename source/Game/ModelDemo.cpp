@@ -9,6 +9,7 @@
 #include "d3dUtil.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "DXTrace.h"
 namespace Rendering
 {
 
@@ -33,64 +34,9 @@ namespace Rendering
 	void ModelDemo::Initialize()
 	{
 		SetCurrentDirectory(Utility::ExecutableDirectory().c_str());
-		// 创建顶点着色器
-		// Compile the shader
-		UINT shaderFlags = 0;
-#if defined( DEBUG ) || defined( _DEBUG )
-		shaderFlags |= D3DCOMPILE_DEBUG;
-		shaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-		ID3DBlob* blob = NULL;
-		HRESULT hr = (d3dUtil::CreateShaderFromFile(L"Content\\HLSL\\Triangle_VS.cso", L"Content\\HLSL\\Triangle_VS.hlsl", "VS", "vs_5_0", &blob));
-		if (FAILED(hr))
-		{
-			throw GameException("CreateShaderFromFile() failed.", hr);
-		}
-		HRESULT hr2 = mGame->Direct3DDevice()->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &mVertexShader);
-		if (FAILED(hr2))
-		{
-			throw GameException("CreateVertexShader() failed.", hr);
-		}
-
-
-		D3D11_INPUT_ELEMENT_DESC inputElementDescriptions[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,
-			D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
-		D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		};
-		// ID3DBlob* blob2;
-		if (FAILED(hr = mGame->Direct3DDevice()->
-			CreateInputLayout(inputElementDescriptions,
-				ARRAYSIZE(inputElementDescriptions), blob->GetBufferPointer(),
-				blob->GetBufferSize(), &mInputLayout)))
-		{
-			throw GameException("ID3D11Device::CreateInputLayout()failed.", hr);
-		}
-
-		// 创建像素着色器
-		hr = d3dUtil::CreateShaderFromFile(L"Content\\HLSL\\Triangle_PS.cso", L"Content\\HLSL\\Triangle_PS.hlsl", "PS", "ps_5_0", &blob);
-		if (FAILED(hr))
-		{
-			throw GameException("CreateShaderFromFile() failed.", hr);
-		}
-		hr = (mGame->Direct3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &mPixelShader));
-		if (FAILED(hr))
-		{
-			throw GameException("CreatePixelShader() failed.", hr);
-		}
-
-		CreateConstBuffer();
-
-		std::unique_ptr<Model> model(new Model(*mGame,
-			"Content\\Models\\Sphere.obj", true));
-		// Create the vertex and index buffers
-		Mesh* mesh = model->Meshes().at(0);
-		CreateVertexBuffer(mGame->Direct3DDevice(), *mesh, &mVertexBuffer);
-		mesh->CreateIndexBuffer(&mIndexBuffer);
-		mIndexCount = mesh->Indices().size();
-		mVertexCount = mesh->Vertices().size();
+	
+		InitEffect();
+		InitResource();
 	}
 	void ModelDemo::CreateVertexBuffer(ID3D11Device* device, const Mesh&
 		mesh, ID3D11Buffer** vertexBuffer) const
@@ -107,8 +53,8 @@ namespace Rendering
 			{
 				XMFLOAT3 position = sourceVertices.at(i);
 				XMFLOAT4 color = vertexColors->at(i);
-				vertices.push_back(BasicEffectVertex(XMFLOAT4(position.x,
-					position.y, position.z, 1.0f), color));
+				vertices.push_back(BasicEffectVertex(XMFLOAT3(position.x,
+					position.y, position.z), color));
 			}
 		}
 		else
@@ -116,9 +62,9 @@ namespace Rendering
 			for (UINT i = 0; i < sourceVertices.size(); i++)
 			{
 				XMFLOAT3 position = sourceVertices.at(i);
-			/*	XMFLOAT4 color = XMFLOAT4(ColorHelper::RandomColor());
-				vertices.push_back(BasicEffectVertex(XMFLOAT4(position.x,
-					position.y, position.z, 1.0f), color));*/
+				XMFLOAT4 color = XMFLOAT4(ColorHelper::Purple);
+				vertices.push_back(BasicEffectVertex(XMFLOAT3(position.x,
+					position.y, position.z), color));
 			}
 		}
 		D3D11_BUFFER_DESC vertexBufferDesc;
@@ -137,6 +83,51 @@ namespace Rendering
 		}
 	}
 
+
+	void ModelDemo::InitEffect()
+	{
+		// 创建顶点着色器
+	// Compile the shader
+		UINT shaderFlags = 0;
+#if defined( DEBUG ) || defined( _DEBUG )
+		shaderFlags |= D3DCOMPILE_DEBUG;
+		shaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+		ID3DBlob* blob = NULL;
+		HR(d3dUtil::CreateShaderFromFile(L"Content\\HLSL\\Triangle_VS.cso", L"Content\\HLSL\\Triangle_VS.hlsl", "VS", "vs_5_0", &blob));
+		HR(mGame->Direct3DDevice()->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &mVertexShader));
+
+		D3D11_INPUT_ELEMENT_DESC inputElementDescriptions[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,
+			D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
+		D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		};
+		// ID3DBlob* blob2;
+		HR(mGame->Direct3DDevice()->
+			CreateInputLayout(inputElementDescriptions,
+				ARRAYSIZE(inputElementDescriptions), blob->GetBufferPointer(),
+				blob->GetBufferSize(), &mInputLayout));
+		// 创建像素着色器
+		HR(d3dUtil::CreateShaderFromFile(L"Content\\HLSL\\Triangle_PS.cso", L"Content\\HLSL\\Triangle_PS.hlsl", "PS", "ps_5_0", &blob))
+		HR(mGame->Direct3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &mPixelShader));
+	
+	}
+
+	void ModelDemo::InitResource()
+	{
+		std::unique_ptr<Model> model(new Model(*mGame,
+			"Content\\Models\\Cube.obj", true));
+		// Create the vertex and index buffers
+		Mesh* mesh = model->Meshes().at(0);
+		CreateVertexBuffer(mGame->Direct3DDevice(), *mesh, &mVertexBuffer);
+		mesh->CreateIndexBuffer(&mIndexBuffer);
+		mIndexCount = mesh->Indices().size();
+		mVertexCount = mesh->Vertices().size();
+
+	}
+
 	void ModelDemo::CreateConstBuffer()
 	{
 		D3D11_BUFFER_DESC cbd;
@@ -152,46 +143,33 @@ namespace Rendering
 		}
 	}
 
-	//void ModelDemo::Update(const GameTime& gameTime)
-	//{
-	//	DrawableGameComponent::Update(gameTime);
-	//	XMMATRIX worldMatrix = XMLoadFloat4x4(&mWorldMatrix);
-	//	XMMATRIX wvp = worldMatrix * mCamera->ViewMatrix() *
-	//		mCamera->ProjectionMatrix();
-	//	CBuffer.view = wvp;
-	//	D3D11_MAPPED_SUBRESOURCE mappedData;
-	//	FAILED(mGame->Direct3DDeviceContext()->Map(mConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
-	//	memcpy_s(mappedData.pData, sizeof(CBuffer), &CBuffer, sizeof(CBuffer));
-	//	mGame->Direct3DDeviceContext()->Unmap(mConstantBuffer, 0);
-	//}
+	void ModelDemo::Update(const GameTime& gameTime)
+	{
+		DrawableGameComponent::Update(gameTime);
+	/*	XMMATRIX worldMatrix = XMLoadFloat4x4(&mWorldMatrix);
+		XMMATRIX wvp = worldMatrix * mCamera->ViewMatrix() *
+			mCamera->ProjectionMatrix();
+		CBuffer.view = wvp;
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+		FAILED(mGame->Direct3DDeviceContext()->Map(mConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+		memcpy_s(mappedData.pData, sizeof(CBuffer), &CBuffer, sizeof(CBuffer));*/
+		/*mGame->Direct3DDeviceContext()->Unmap(mConstantBuffer, 0);*/
+	}
 
 	void ModelDemo::Draw(const GameTime& gameTime)
 	{
 		ID3D11DeviceContext* direct3DDeviceContext =
 			mGame->Direct3DDeviceContext();
+		direct3DDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
+		direct3DDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
+
 		direct3DDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		direct3DDeviceContext->IASetInputLayout(mInputLayout);
+
 		UINT stride = sizeof(BasicEffectVertex);
 		UINT offset = 0;
 		direct3DDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer,
 			&stride, &offset);
-
-		direct3DDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-		XMMATRIX worldMatrix;// = XMLoadFloat4x4(&(XMFLOAT3(0, 0, 0)));
-			XMMATRIX wvp = worldMatrix * mCamera->ViewMatrix() *
-				mCamera->ProjectionMatrix();
-			CBuffer.view = wvp;
-			D3D11_MAPPED_SUBRESOURCE mappedData;
-			FAILED(direct3DDeviceContext->Map(mConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
-			memcpy_s(mappedData.pData, sizeof(CBuffer), &CBuffer, sizeof(CBuffer));
-			direct3DDeviceContext->Unmap(mConstantBuffer, 0);
-
-
-		// mWvpVariable->SetMatrix(reinterpret_cast<const float*>(&wvp));
-		// mPass->Apply(0, direct3DDeviceContext);
-		direct3DDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
-		direct3DDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
 		direct3DDeviceContext->DrawIndexed(mIndexCount, 0,0);
 
 	}

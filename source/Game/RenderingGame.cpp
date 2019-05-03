@@ -12,6 +12,7 @@
 #include <sstream>
 #include "ServiceContainer.h"
 #include "ColorHelper.h"
+
 // using namespace std;
 namespace Rendering
 {
@@ -50,14 +51,22 @@ namespace Rendering
 		mComponents.push_back(mCamera);
 		mServices.AddService(Camera::TypeIdClass(), mCamera);
 
-		//mFpsComponent = new FpsComponent(*this);
-		//mComponents.push_back(mFpsComponent);
+		mFpsComponent = new FpsComponent(*this);
+		mComponents.push_back(mFpsComponent);
 
 		mTangle = new TriangleDemo(*this, *mCamera);
 		mComponents.push_back(mTangle);
+
+		//ModelDemo* pModelDemo = new ModelDemo(*this, *mCamera);
+		//mComponents.push_back(pModelDemo);
+	
 		//mGrid = new Grid(*this, *mCamera);
 		// mComponents.push_back(mGrid);
 
+
+		{
+			//构建点光源
+		}
 		Game::Initialize();
 
 		mCamera->SetPosition(0.0f, 0.0f, 10.0f);

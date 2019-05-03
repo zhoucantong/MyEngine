@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "Game.h"
 
+
 namespace DirectX
 {
 	class SpriteBatch;
@@ -16,6 +17,7 @@ namespace Library
 	class FirstPersonCamera;
 	class FpsComponent;
 	class Grid;
+
 }
 namespace Rendering
 {
@@ -55,6 +57,8 @@ namespace Rendering
 
 		SpriteBatch* mSpriteBatch;
 		SpriteFont* mSpriteFont;
+
+
 	};
 }
 

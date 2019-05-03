@@ -87,6 +87,15 @@
     <ClInclude Include="DXTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LightHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -152,6 +161,12 @@
     <ClCompile Include="DXTrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\HLSL\BasicHLSL11_PS.hlsl">
@@ -166,9 +181,21 @@
     <FxCompile Include="Content\HLSL\Triangle_VS.hlsl">
       <Filter>Content</Filter>
     </FxCompile>
+    <FxCompile Include="Content\HLSL\Light_PS.hlsl">
+      <Filter>Content</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\HLSL\Light_VS.hlsl">
+      <Filter>Content</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\HLSL\Triangle.hlsli">
+      <Filter>Content</Filter>
+    </None>
+    <None Include="Content\HLSL\Light.hlsli">
+      <Filter>Content</Filter>
+    </None>
+    <None Include="Content\HLSL\LightHelper.hlsli">
       <Filter>Content</Filter>
     </None>
   </ItemGroup>

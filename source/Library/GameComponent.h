@@ -5,7 +5,7 @@
 namespace Library
 {
 	struct FPerObject
-	{	
+	{
 		DirectX::XMMATRIX world;
 		DirectX::XMMATRIX view;
 		DirectX::XMMATRIX proj;
